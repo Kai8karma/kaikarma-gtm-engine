@@ -68,5 +68,9 @@ run "persistent-loop tests"       examples/test_persistent_loop.py
 run "list-to-sequences demo"      examples/list_to_sequences.py
 run "list-to-sequences tests"     examples/test_list_to_sequences.py
 
+# evals — does the learning loop actually work? (pre-registered backtest)
+run "learning-loop backtest"      evals/learning_loop_eval.py
+run "learning-loop guard tests"   evals/test_learning_loop.py
+
 echo
-echo "✅ smoke passed — 5 pillars + copy + lifecycle + closed/persistent loop + 03/04 brain logging gated"
+echo "✅ smoke passed — 5 pillars + loops + 03/04 brain logging + backtested learning gated"

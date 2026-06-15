@@ -2,9 +2,9 @@
 
 [![CI](https://github.com/Kai8karma/kaikarma-gtm-engine/actions/workflows/ci.yml/badge.svg)](https://github.com/Kai8karma/kaikarma-gtm-engine/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
 
-**GTM engineering as a running system — code, memory, and autonomous agents — not a folder of SOPs.**
+**GTM engineering as tested code — scoring, pacing, routing, and a learning loop you can run, verify, and _backtest_ — not a folder of SOPs.**
 
-Most "GTM methodology" repos are markdown: frameworks you still have to implement by hand, in someone else's UI, from a cold start every time. This one is built the other way around. The frameworks are **code you run**. The decisions are **logged to a memory that learns**. The repetitive operations are **agents that close the loop**.
+Most "GTM methodology" repos are markdown: frameworks you still have to implement by hand, in someone else's UI, from a cold start every time. This one is built the other way around. The frameworks are **code you run**. Outcomes are **logged, and the weights tune from them** — and that learning is **backtested, not asserted** ([`evals/`](evals/)). Control logic closes the loop: pull → classify → act under hard caps → log.
 
 Built by Kai ([@Kai8karma](https://github.com/Kai8karma)) — RevOps / GTM engineering / performance marketing. The patterns here come from real B2B pipeline work; the architecture comes from running one operator like a five-person team.
 
@@ -18,18 +18,18 @@ GTM engineering has three layers. Most content stops at the first.
 |---|---|---|
 | **Doctrine** — the frameworks | ✅ Markdown SOPs | ✅ Markdown, but subordinate to code |
 | **Execution** — actually doing it | ❌ "build this in Clay/HubSpot" (prose) | ✅ Runnable Python: scorers, routers, validators |
-| **Memory + agents** — learning & autonomy | ❌ stateless, every session cold | ✅ outcomes feed a brain; agents close the loop |
+| **Memory + learning** | ❌ stateless, every session cold | ✅ outcomes logged; weights tune from them — _measured_ ([`evals/`](evals/)) |
 
-If a framework can't be run, tested, and improved by its own results, it's a blog post. The bar here is: **falsifiable, executable, and self-improving.**
+If a framework can't be run, tested, and improved by its own results, it's a blog post. The bar here is: **falsifiable, executable, and measurably self-tuning** — the learning loop is backtested in [`evals/`](evals/), not just claimed.
 
 ---
 
-## What's different (the four moats)
+## What's different
 
 1. **An operating system, not just plays.** `00-operating-system/` encodes how the engine *decides* — three-layer separation (strategy never calls live APIs, execution never makes strategic calls, engagement data stays isolated), per-engagement governance, and a verification gate on every change.
 2. **Frameworks are code.** ICP scoring is a tested function, not a 100-point table you eyeball. Lead routing is a state machine. Data-quality decay is a scheduler. See `01-list-engine/icp_scorer.py` for the reference implementation.
-3. **A memory that learns.** `05-brain-integration/` — closed-won/lost outcomes update ICP weights; which copy framework won for which persona is tracked; signal weights tune against actual conversion. The system gets sharper per campaign instead of starting over.
-4. **Autonomous agents.** The paid-ads controllers and RevOps watchdogs run feedback loops — pull metrics → classify against a target → act under hard caps → log the outcome — not cron jobs that pause ads on a timer.
+3. **A learning loop — and it's _measured_.** `05-brain-integration/` tunes ICP weights from closed-won/lost outcomes. Backtested, pre-registered ([`evals/DEC-learning-loop.md`](evals/DEC-learning-loop.md)): it drifts weights toward the true drivers and captures **78% of the achievable ranking lift** — modest in absolute terms (+3.2pp), but **real and proven**. No comparable repo measures whether its own method works; this one does, and reported an honest PARK.
+4. **Control loops, not cron jobs.** The paid controller and RevOps logic are decision functions — classify against a target → act under hard caps → log the outcome. Invoked, not magically autonomous — and the honesty about that is the point.
 
 ---
 
@@ -42,10 +42,11 @@ kaikarma-gtm-engine/
 ├── 02-send-engine/          # outbound infra + copy frameworks as structured prompts
 ├── 03-abm-paid-engine/      # account targeting + the autonomous paid-ads controllers
 ├── 04-revops-engine/        # routing, lifecycle state machine, data governance, reporting
-├── 05-brain-integration/    # the learning loop — outcomes → updated weights (the moat)
+├── 05-brain-integration/    # the learning loop — outcomes → tuned weights (backtested in evals/)
 ├── engagements/             # per-client isolation; _INDEX.md cites live state
 ├── research/teardowns/      # competitive structural analysis (how the best repos are built)
 ├── docs/                    # frameworks-as-reference, subordinate to the code
+├── evals/                   # pre-registered backtests — does the learning loop actually work?
 └── tests/                   # smoke + unit; nothing ships unverified
 ```
 
@@ -63,14 +64,15 @@ Pillars run in GTM execution order: build the list → send → run paid air-cov
 - ✅ `03-abm-paid-engine/rsa_builder.py` — **Google RSA builder/validator**, encoding [Anthropic's documented `/rsa` growth workflow](research/anthropic-growth-playbook.md): 15-headline limits, policy checks (`!`/caps/dupes), upload-ready CSV, generation brief — guardrails so LLM-written ads ship policy-clean
 - ✅ `04-revops-engine/` — `lead_router.py` + **`stage_machine.py`** (lifecycle FSM) + **`dqs_scorer.py`** (6-dim data quality) + **`sla_enforcer.py`** (breach/escalation)
 - ✅ `05-brain-integration/` — the **learning loop**: outcome store + `policy_tuner.tune()` (win↑/loss↓/renormalize)
-- ✅ **`examples/closed_loop.py`** — the moat, **wired end-to-end**: score → log outcomes → `tune()` → reload → re-score; signal-driven accounts rise, pure-firmographic fall (one drops a tier)
+- ✅ **`examples/closed_loop.py`** — the learning loop, **wired end-to-end**: score → log outcomes → `tune()` → reload → re-score; signal-driven accounts rise, pure-firmographic fall (one drops a tier)
 - ✅ **`examples/persistent_loop.py`** — `load_and_tune()` **warms every new session** from `05-brain-integration/_state/outcomes.json` — outcomes compound across campaigns, not just within one run
 - ✅ **`03/perf_outcomes.py` + `04/routing_outcomes.py`** — the paid controller and router now **feed the brain**: each verdict/route logs a win/loss Outcome (the loop is multi-pillar, not list-only)
 - ✅ **`examples/list_to_sequences.py`** — `01→02` bridge: scored accounts → framework selection by tier → rendered outbound copy
 - ✅ Operating-system doctrine, per-engagement governance (runnable `engagements/_TEMPLATE/` configs), competitive teardowns
-- 🚧 Call the outcome-loggers from inside `perf_controller.run()` / `lead_router.route()` as opt-in side-effects; feed perf/routing outcomes into tuning — next loop
+- ✅ **`evals/`** — pre-registered backtest of the learning loop, honestly logged (verdict: **PARK**). Proving it helps *before* claiming it does is the whole ethos.
+- 🚧 A magnitude-aware tuner to capture the remaining 22% headroom; wire loggers into the controllers as opt-in side-effects — next loop
 
-**310 tests, ruff-clean, `bash tests/smoke.sh` exits 0** — CI gates every pillar + the full cross-pillar loop on Python 3.11/3.12/3.13. Grows by loops; nothing ships unless the gate is green.
+**314 tests, ruff-clean, `bash tests/smoke.sh` exits 0** — CI gates every pillar, the full cross-pillar loop, and the learning-loop backtest on Python 3.11/3.12/3.13. Grows by loops; nothing ships unless the gate is green.
 
 ---
 
