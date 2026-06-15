@@ -14,7 +14,6 @@ outcome so the policy thresholds tune to what actually worked.
 
 from __future__ import annotations
 
-from dataclasses import replace
 
 from perf_schema import (
     CUT,

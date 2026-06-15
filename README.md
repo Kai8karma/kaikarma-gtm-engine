@@ -1,5 +1,7 @@
 # kaikarma-gtm-engine
 
+[![CI](https://github.com/Kai8karma/kaikarma-gtm-engine/actions/workflows/ci.yml/badge.svg)](https://github.com/Kai8karma/kaikarma-gtm-engine/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
+
 **GTM engineering as a running system — code, memory, and autonomous agents — not a folder of SOPs.**
 
 Most "GTM methodology" repos are markdown: frameworks you still have to implement by hand, in someone else's UI, from a cold start every time. This one is built the other way around. The frameworks are **code you run**. The decisions are **logged to a memory that learns**. The repetitive operations are **agents that close the loop**.
@@ -53,16 +55,17 @@ Pillars run in GTM execution order: build the list → send → run paid air-cov
 
 ## Status
 
-**v0.1 — scaffold + reference module.** Honest about what's real:
+**v0.2 — all five pillars have working code.** Honest about what's real:
 
-- ✅ `01-list-engine/icp_scorer.py` — working, tested ICP scorer
+- ✅ `01-list-engine/icp_scorer.py` — ICP scorer: deterministic 0-100, 4 weighted dimensions, A/B/C/D tiers
+- ✅ `02-send-engine/` — `domain_calculator.py` (mailbox/domain/warmup planner) + `dns_validator.py` (pure-parse SPF/DKIM/DMARC)
 - ✅ `03-abm-paid-engine/perf_controller.py` — **performance-marketing controller**: classifies each campaign vs target CPA → scale/hold/cut/kill under hard caps, learning-phase protected
-- ✅ Operating-system doctrine + per-engagement governance template
-- ✅ Competitive teardowns in `research/`
-- 🚧 Send / RevOps engines — doctrine + interfaces stubbed, implementations landing pillar by pillar
-- 🚧 Brain-integration hooks — design documented, wiring in progress
+- ✅ `04-revops-engine/lead_router.py` — tier→destination routing, A+signal escalation, round-robin, SLAs
+- ✅ `05-brain-integration/` — the **learning loop**: outcome store + `policy_tuner.tune()` (win↑/loss↓/renormalize)
+- ✅ Operating-system doctrine, per-engagement governance, competitive teardowns
+- 🚧 Cross-pillar wiring (score → log outcome → tune → reload) and the deeper RevOps/copy modules — next loop
 
-25 tests green, `bash tests/smoke.sh` exits 0. This grows pillar by pillar, each one shipped only when it runs and passes a check.
+**105 tests across all 5 pillars, ruff-clean, `bash tests/smoke.sh` exits 0** — CI gates every pillar on Python 3.11/3.12/3.13. Grows pillar by pillar; nothing ships unless the gate is green.
 
 ---
 

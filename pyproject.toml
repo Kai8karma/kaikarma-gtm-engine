@@ -1,0 +1,10 @@
+[project]
+name = "kaikarma-gtm-engine"
+version = "0.1.0"
+description = "Air-gapped GTM engine — deterministic, explainable, stdlib-only modules for ICP scoring, ABM sequencing, paid-channel control, and RevOps automation."
+authors = [{ name = "Kai", email = "kai8karma@gmail.com" }]
+license = { text = "MIT" }
+requires-python = ">=3.11"
+
+[tool.ruff]
+line-length = 100

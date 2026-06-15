@@ -18,6 +18,9 @@ engagements/*/results/
 engagements/*/data/
 !engagements/_TEMPLATE/
 
+# brain learning-loop local state — never commit logged outcomes
+05-brain-integration/_state/
+
 # os
 .DS_Store
 Thumbs.db
