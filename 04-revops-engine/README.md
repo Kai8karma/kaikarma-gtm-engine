@@ -11,6 +11,8 @@
 - `dqs_scorer.py` — `score_record(record, now_days) -> DQSResult` (0-100). Six weighted dimensions: completeness (25), validity (20), consistency (15), uniqueness_hint (10), timeliness (20), accuracy_hint (10). `DQSResult.breakdown` sums exactly to `.score`. Deterministic; stdlib regex only.
 - `sla_enforcer.py` — `check_sla(elapsed_minutes, sla_minutes) -> status` one of `ok | warning | breach | escalate` (escalate at ≥ 2× SLA, warning at ≥ 80%). `batch_check(pairs, sla_minutes)` applies the check across many leads sharing one SLA target. Raises on non-positive SLA.
 - `test_revops_extended.py` — 58 assertions across all three modules: legal/illegal stage transitions (happy path + sink exhaustion + unknown stage/event), DQS score range (complete > 70, sparse < 50), breakdown sums to score (complete/sparse/empty), all six dimensions present and non-negative, timeliness at fresh/neutral/stale, SLA thresholds including exact 80% warning boundary and exact 2× escalation boundary, batch helper status sequence and edge cases.
+- `routing_outcomes.py` — **feeds the brain**: given a routed `Lead` + `Route` + `converted: bool`, logs two `Outcome` records per lead — `(entity_type='routing_sla', key=destination)` and `(entity_type='routing_tier', key=icp_tier)` — via `record_routing_outcome` (single) or `record_routing_outcomes_batch`. Both verdicts are `'win'` if the lead converted, `'loss'` otherwise.
+- `test_routing_outcomes.py` — 25 stdlib tests; SLA/tier entity types, destination/tier keys, win/loss verdicts, round-trip, 2-outcomes-per-lead invariant, batch order and empty-batch edge case.
 
 ## Planned
 

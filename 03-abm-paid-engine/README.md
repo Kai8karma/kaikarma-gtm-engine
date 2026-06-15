@@ -13,6 +13,8 @@ That is categorically different from a cron job that pauses ads on a timer.
 - `perf_schema.py` — `Campaign` (live metrics) / `PerfPolicy` (doctrine as numbers + **hard caps**) / `Action` (verdict + new budget + reason).
 - `perf_controller.py` — `decide()` classifies one campaign's actual CPA against target and emits **SCALE / HOLD / CUT / KILL / LEARNING**; `run()` decides the whole account then **enforces hard caps** (max single-step move, account daily ceiling) — pacing claws back speculative scale-ups before trimming baseline performers. `blended()` reports portfolio CPA/ROAS.
 - `test_perf_controller.py` — 15 stdlib tests; hard-cap enforcement is provably tested, learning-phase protection is provably tested.
+- `perf_outcomes.py` — **feeds the brain**: given a controller `Action` + a realized result (`kept_under_target: bool`), builds and logs an `Outcome(entity_type='perf_threshold', key=<threshold name>, verdict='win'|'loss')` via `record_perf_outcome` (single) or `record_perf_outcomes_batch`. Verdict-to-threshold mapping: `SCALE/HOLD → scale_when_ratio_below`, `CUT → cut_when_ratio_above`, `KILL → kill_when_ratio_above`, `LEARNING → min_conversions_to_exit_learning`.
+- `test_perf_outcomes.py` — 18 stdlib tests; round-trip, all verdict→key mappings, batch, win/loss/empty-batch edge cases.
 
 ```bash
 python3 03-abm-paid-engine/perf_controller.py        # demo: 5 campaigns, 5 verdicts

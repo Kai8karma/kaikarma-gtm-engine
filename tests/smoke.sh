@@ -48,9 +48,23 @@ run "revops extended tests"       04-revops-engine/test_revops_extended.py
 run "engagement config demo"      engagements/_TEMPLATE/config_loader.py
 run "engagement config tests"     engagements/_TEMPLATE/test_config.py
 
+# 03 / 04 → brain outcome logging
+run "perf-outcomes demo"          03-abm-paid-engine/perf_outcomes.py
+run "perf-outcomes tests"         03-abm-paid-engine/test_perf_outcomes.py
+run "routing-outcomes demo"       04-revops-engine/routing_outcomes.py
+run "routing-outcomes tests"      04-revops-engine/test_routing_outcomes.py
+
 # cross-pillar — the end-to-end learning loop (the moat)
 run "closed-loop demo"            examples/closed_loop.py
 run "closed-loop tests"           examples/test_closed_loop.py
 
+# cross-pillar — persistent multi-session warm-start
+run "persistent-loop demo"        examples/persistent_loop.py
+run "persistent-loop tests"       examples/test_persistent_loop.py
+
+# cross-pillar — list → send bridge
+run "list-to-sequences demo"      examples/list_to_sequences.py
+run "list-to-sequences tests"     examples/test_list_to_sequences.py
+
 echo
-echo "✅ smoke passed — 5 pillars + copy + lifecycle + closed loop gated"
+echo "✅ smoke passed — 5 pillars + copy + lifecycle + closed/persistent loop + 03/04 brain logging gated"

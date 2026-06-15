@@ -10,6 +10,34 @@ bash tests/smoke.sh
 
 This exits 0 on success and fails loudly otherwise. Nothing ships unless this gate is green.
 
+## Running tests
+
+Two paths are supported — pick whichever suits your workflow.
+
+**stdlib runner (canonical)**
+
+```bash
+bash tests/smoke.sh
+```
+
+Runs every pillar demo and test file directly with `python3`. No dependencies
+beyond a working Python 3.11+ install. This is what CI uses and what `make
+test` (alias: `make smoke`) calls.
+
+**pytest path (optional, contributor convenience)**
+
+```bash
+pytest
+```
+
+`pyproject.toml` sets `pythonpath` so pytest can discover modules across the
+numbered pillar directories without any extra `sys.path` wiring on your part.
+You need `pytest` installed (`pip install pytest`) — it is not a declared
+dependency of the project. All other rules (stdlib-only logic, no external
+deps) still apply.
+
+Both paths must exit 0 before a PR is ready for review.
+
 ## House pattern for adding a pillar
 
 Each pillar lives in a numbered directory (`NN-<name>/`) and follows this exact layout:

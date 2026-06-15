@@ -1,10 +1,15 @@
-.PHONY: test lint demo
+.PHONY: test lint demo smoke all
 
 test:
 	bash tests/smoke.sh
 
+smoke:
+	bash tests/smoke.sh
+
 lint:
 	uvx ruff check .
+
+all: lint test
 
 demo:
 	python3 01-list-engine/icp_scorer.py

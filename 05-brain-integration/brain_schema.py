@@ -18,7 +18,9 @@ from typing import Literal
 # Allowed entity types — expanding when new pillars are wired in.
 # 'icp_dimension' → a dimension weight in ICPProfile (firmographic, etc.)
 # 'perf_threshold' → a policy ratio in PerfPolicy (scale_when, cut_when, etc.)
-EntityType = Literal["icp_dimension", "perf_threshold"]
+# 'routing_sla'   → an SLA contract for a routing destination (04-revops-engine)
+# 'routing_tier'  → a tier→destination mapping verdict (04-revops-engine)
+EntityType = Literal["icp_dimension", "perf_threshold", "routing_sla", "routing_tier"]
 
 Verdict = Literal["win", "loss", "neutral"]
 
