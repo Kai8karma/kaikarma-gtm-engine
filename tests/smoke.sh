@@ -24,6 +24,8 @@ run "send-engine tests"           02-send-engine/test_send.py
 # 03 — abm + paid engine
 run "paid-controller demo"        03-abm-paid-engine/perf_controller.py
 run "paid-controller tests"       03-abm-paid-engine/test_perf_controller.py
+run "rsa-builder demo"            03-abm-paid-engine/rsa_builder.py
+run "rsa-builder tests"           03-abm-paid-engine/test_rsa.py
 
 # 04 — revops engine
 run "revops-engine demo"          04-revops-engine/lead_router.py
