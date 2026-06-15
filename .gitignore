@@ -1,0 +1,23 @@
+# env & secrets
+.env
+.env.*
+!.env.example
+*.key
+credentials.json
+
+# python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+*.egg-info/
+
+# engagement data — never commit client data
+engagements/*/results/
+engagements/*/data/
+!engagements/_TEMPLATE/
+
+# os
+.DS_Store
+Thumbs.db
