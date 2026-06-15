@@ -55,13 +55,14 @@ Pillars run in GTM execution order: build the list → send → run paid air-cov
 
 **v0.1 — scaffold + reference module.** Honest about what's real:
 
-- ✅ `01-list-engine/icp_scorer.py` — working, tested ICP scorer (run `bash tests/smoke.sh`)
+- ✅ `01-list-engine/icp_scorer.py` — working, tested ICP scorer
+- ✅ `03-abm-paid-engine/perf_controller.py` — **performance-marketing controller**: classifies each campaign vs target CPA → scale/hold/cut/kill under hard caps, learning-phase protected
 - ✅ Operating-system doctrine + per-engagement governance template
 - ✅ Competitive teardowns in `research/`
-- 🚧 Send / ABM-paid / RevOps engines — doctrine + interfaces stubbed, implementations landing pillar by pillar
+- 🚧 Send / RevOps engines — doctrine + interfaces stubbed, implementations landing pillar by pillar
 - 🚧 Brain-integration hooks — design documented, wiring in progress
 
-This grows pillar by pillar, each one shipped only when it runs and passes a check.
+25 tests green, `bash tests/smoke.sh` exits 0. This grows pillar by pillar, each one shipped only when it runs and passes a check.
 
 ---
 

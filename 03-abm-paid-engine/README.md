@@ -8,7 +8,20 @@ This pillar is where the **paid-ads controllers** plug in. The control loop is t
 
 That is categorically different from a cron job that pauses ads on a timer.
 
-## Design
+## Built — performance-marketing controller
+
+- `perf_schema.py` — `Campaign` (live metrics) / `PerfPolicy` (doctrine as numbers + **hard caps**) / `Action` (verdict + new budget + reason).
+- `perf_controller.py` — `decide()` classifies one campaign's actual CPA against target and emits **SCALE / HOLD / CUT / KILL / LEARNING**; `run()` decides the whole account then **enforces hard caps** (max single-step move, account daily ceiling) — pacing claws back speculative scale-ups before trimming baseline performers. `blended()` reports portfolio CPA/ROAS.
+- `test_perf_controller.py` — 15 stdlib tests; hard-cap enforcement is provably tested, learning-phase protection is provably tested.
+
+```bash
+python3 03-abm-paid-engine/perf_controller.py        # demo: 5 campaigns, 5 verdicts
+python3 03-abm-paid-engine/test_perf_controller.py   # tests
+```
+
+The doctrine is encoded as policy numbers, not prose: protect the learning phase, scale only proven winners, kill runaway zero-conversion spend, never breach the cap. Change the strategy by changing a `PerfPolicy`, not by rewriting code.
+
+## Planned
 
 - `account_targeting/account_scorer.py` — company-level fit scoring (mirrors the list-engine ICP scorer).
 - `account_targeting/lookalike_builder.py` — expand from top customers via enrichment APIs.

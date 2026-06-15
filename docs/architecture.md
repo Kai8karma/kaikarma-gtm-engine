@@ -36,4 +36,4 @@ One sentence: **a GTM motion expressed as code + memory + agents, governed by an
 
 ## Build order
 
-Ship a pillar only when it runs and passes a check. Current: **01 list-engine** is live (scorer + tests). Next: 02 send-engine infra calculators, then 04 routing, then wire 05 brain hooks.
+Ship a pillar only when it runs and passes a check. Live: **01 list-engine** (ICP scorer) and **03 abm-paid-engine** (performance-marketing controller) — 25 tests green. Next: 02 send-engine infra calculators, then 04 routing, then wire 05 brain hooks so controller outcomes tune the policy.

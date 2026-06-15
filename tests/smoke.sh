@@ -13,4 +13,12 @@ echo "▶ list-engine tests"
 "$PY" 01-list-engine/test_icp_scorer.py
 
 echo
+echo "▶ paid-controller demo"
+"$PY" 03-abm-paid-engine/perf_controller.py
+
+echo
+echo "▶ paid-controller tests"
+"$PY" 03-abm-paid-engine/test_perf_controller.py
+
+echo
 echo "✅ smoke passed"
