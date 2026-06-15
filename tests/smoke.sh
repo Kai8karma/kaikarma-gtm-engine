@@ -34,5 +34,23 @@ run "brain demo (outcome store)"  05-brain-integration/outcome_store.py
 run "brain demo (policy tuner)"   05-brain-integration/policy_tuner.py
 run "brain tests"                 05-brain-integration/test_brain.py
 
+# 02 — send engine: copy layer
+run "copy demo (frameworks)"      02-send-engine/framework_registry.py
+run "copy tests"                  02-send-engine/test_copy.py
+
+# 04 — revops engine: lifecycle / DQS / SLA
+run "revops lifecycle demo"       04-revops-engine/stage_machine.py
+run "revops dqs demo"             04-revops-engine/dqs_scorer.py
+run "revops sla demo"             04-revops-engine/sla_enforcer.py
+run "revops extended tests"       04-revops-engine/test_revops_extended.py
+
+# engagements — runnable template config
+run "engagement config demo"      engagements/_TEMPLATE/config_loader.py
+run "engagement config tests"     engagements/_TEMPLATE/test_config.py
+
+# cross-pillar — the end-to-end learning loop (the moat)
+run "closed-loop demo"            examples/closed_loop.py
+run "closed-loop tests"           examples/test_closed_loop.py
+
 echo
-echo "✅ smoke passed — all 5 pillars gated"
+echo "✅ smoke passed — 5 pillars + copy + lifecycle + closed loop gated"

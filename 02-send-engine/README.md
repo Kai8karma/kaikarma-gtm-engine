@@ -9,10 +9,14 @@
 - `dns_validator.py` — pure-parsing validators for SPF, DKIM, DMARC record strings with no DNS lookup: `validate_spf()`, `validate_dkim()`, `validate_dmarc()`, `validate_all()`. Each returns a `DnsCheck` (pass/fail + specific issues).
 - `test_send.py` — 35 stdlib `unittest` assertions covering both modules: valid records, malformed records, edge mailbox counts, determinism, type contracts.
 
+### Copy layer
+
+- `framework_registry.py` — registry of 4 named B2B cold-email copy frameworks (`problem-first`, `do-the-math`, `pattern-interrupt`, `upfront-value`). Each is a `Framework` dataclass with `name`, `best_use`, `required_slots`, and `render(slots) -> str` that raises `KeyError` on any missing slot. Public API: `get_framework(name)`, `list_frameworks()`. Stdlib only, no network.
+- `copy_eval.py` — `score_copy(draft, framework) -> EvalResult` with a 0–100 score, issues list, and per-criterion breakdown. Five deterministic criteria: word count in bounds (40–120 words), question or CTA present, no banned hype words, personalization token filled, exactly one clear ask.
+- `test_copy.py` — 35 stdlib `unittest` assertions: happy-path renders for all 4 frameworks, missing-slot raises naming the slot, registry lookups, clean draft scores 100/0 issues, hypey/no-CTA draft scores below 50, banned-word detection (case-insensitive), single-ask enforcement.
+
 ## Planned
 
-- `copywriting/framework_registry.py` — named copy frameworks as structured prompt templates with explicit best-use + slots, not markdown examples.
-- `copywriting/copy_eval.py` — score a draft against its framework's criteria before it ships (the eval gate).
 - `sequencer/sequence_push.py` — push contacts to Instantly/Smartlead via API.
 
 ## Doctrine reference

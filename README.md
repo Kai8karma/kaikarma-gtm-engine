@@ -55,17 +55,18 @@ Pillars run in GTM execution order: build the list → send → run paid air-cov
 
 ## Status
 
-**v0.2 — all five pillars have working code.** Honest about what's real:
+**v0.3 — all five pillars working, and the loop closes end-to-end.** Honest about what's real:
 
 - ✅ `01-list-engine/icp_scorer.py` — ICP scorer: deterministic 0-100, 4 weighted dimensions, A/B/C/D tiers
-- ✅ `02-send-engine/` — `domain_calculator.py` (mailbox/domain/warmup planner) + `dns_validator.py` (pure-parse SPF/DKIM/DMARC)
-- ✅ `03-abm-paid-engine/perf_controller.py` — **performance-marketing controller**: classifies each campaign vs target CPA → scale/hold/cut/kill under hard caps, learning-phase protected
-- ✅ `04-revops-engine/lead_router.py` — tier→destination routing, A+signal escalation, round-robin, SLAs
+- ✅ `02-send-engine/` — infra planner + pure-parse SPF/DKIM/DMARC validator **+ copy layer** (`framework_registry.py` named frameworks, `copy_eval.py` scoring gate)
+- ✅ `03-abm-paid-engine/perf_controller.py` — **performance-marketing controller**: classify each campaign vs target CPA → scale/hold/cut/kill under hard caps, learning-phase protected
+- ✅ `04-revops-engine/` — `lead_router.py` + **`stage_machine.py`** (lifecycle FSM) + **`dqs_scorer.py`** (6-dim data quality) + **`sla_enforcer.py`** (breach/escalation)
 - ✅ `05-brain-integration/` — the **learning loop**: outcome store + `policy_tuner.tune()` (win↑/loss↓/renormalize)
-- ✅ Operating-system doctrine, per-engagement governance, competitive teardowns
-- 🚧 Cross-pillar wiring (score → log outcome → tune → reload) and the deeper RevOps/copy modules — next loop
+- ✅ **`examples/closed_loop.py`** — the moat, **wired end-to-end**: score → log outcomes → `tune()` → reload → re-score; signal-driven accounts rise, pure-firmographic accounts fall (one drops a tier)
+- ✅ Operating-system doctrine, per-engagement governance (runnable `engagements/_TEMPLATE/` configs), competitive teardowns
+- 🚧 Extend the loop so the 03 paid controller and 04 router also log outcomes; persistent (multi-session) warm-start — next loop
 
-**105 tests across all 5 pillars, ruff-clean, `bash tests/smoke.sh` exits 0** — CI gates every pillar on Python 3.11/3.12/3.13. Grows pillar by pillar; nothing ships unless the gate is green.
+**233 tests, ruff-clean, `bash tests/smoke.sh` exits 0** — CI gates every pillar + the closed loop on Python 3.11/3.12/3.13. Grows by loops; nothing ships unless the gate is green.
 
 ---
 

@@ -1,0 +1,25 @@
+{
+  "channels": [
+    {
+      "name": "linkedin_abm",
+      "daily_spend_cap": 150.0,
+      "target_cpa": 50.0
+    },
+    {
+      "name": "google_brand",
+      "daily_spend_cap": 100.0,
+      "target_cpa": 40.0
+    },
+    {
+      "name": "meta_retarget",
+      "daily_spend_cap": 80.0,
+      "target_cpa": 60.0
+    },
+    {
+      "name": "email_outbound",
+      "daily_spend_cap": 20.0,
+      "target_cpa": 30.0
+    }
+  ],
+  "account_daily_cap": 350.0
+}

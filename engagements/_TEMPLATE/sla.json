@@ -1,0 +1,22 @@
+{
+  "tier_map": {
+    "A": {
+      "destination": "ae_queue",
+      "sla_minutes": 60
+    },
+    "B": {
+      "destination": "sdr_sequence",
+      "sla_minutes": 240
+    },
+    "C": {
+      "destination": "nurture",
+      "sla_minutes": 1440
+    },
+    "D": {
+      "destination": "disqualified",
+      "sla_minutes": 0
+    }
+  },
+  "signal_escalates": true,
+  "instant_alert_sla_minutes": 5
+}

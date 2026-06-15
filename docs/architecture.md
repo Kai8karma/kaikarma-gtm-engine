@@ -36,4 +36,4 @@ One sentence: **a GTM motion expressed as code + memory + agents, governed by an
 
 ## Build order
 
-Ship a pillar only when it runs and passes a check. Live: **01 list-engine** (ICP scorer) and **03 abm-paid-engine** (performance-marketing controller) — 25 tests green. Next: 02 send-engine infra calculators, then 04 routing, then wire 05 brain hooks so controller outcomes tune the policy.
+Ship a pillar only when it runs and passes a check. **All five pillars are live**, plus the end-to-end learning loop (`examples/closed_loop.py`): 233 tests green, ruff-clean, gated in CI. Next: extend the loop so the 03 paid controller and 04 router also `log_outcome`, and make accumulated multi-session learning (persistent `_state/outcomes.json` warm-start) the default rather than a tempfile demo.

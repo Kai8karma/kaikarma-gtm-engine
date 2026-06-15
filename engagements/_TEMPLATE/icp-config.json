@@ -1,0 +1,13 @@
+{
+  "name": "B2B SaaS, mid-market, RevOps buyer",
+  "target_industries": ["software", "saas", "fintech"],
+  "employee_min": 50,
+  "employee_max": 1000,
+  "target_tech": ["hubspot", "salesforce", "clay"],
+  "weights": {
+    "firmographic": 40,
+    "technographic": 20,
+    "signal": 30,
+    "fit": 10
+  }
+}

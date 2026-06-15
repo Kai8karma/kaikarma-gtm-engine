@@ -12,9 +12,12 @@
 
 ## Config (loaded at runtime — not hardcoded)
 
-- `icp-config.json` — ICP weights + targets for this client
-- `channels.json` — channel mix + spend caps
-- `sla.json` — routing SLA targets
+- `icp-config.json` — ICP weights + targets for this client (matches `ICPProfile` in `01-list-engine/icp_schema.py`; weights must sum to 100)
+- `channels.json` — channel mix + per-channel daily spend cap + target CPA; `account_daily_cap` is the hard ceiling across all channels
+- `sla.json` — per-tier routing SLA in minutes (matches `RoutingPolicy` / `TierPolicy` in `04-revops-engine/revops_schema.py`); covers tiers A–D + signal-escalation lane
+- `config_loader.py` — `load_engagement(dir)` reads the three JSONs, validates them, returns a merged `{"icp": …, "channels": …, "sla": …}` dict; run directly for a demo
+- `test_config.py` — stdlib unittest suite (24 assertions): all three example configs parse; weights sum to 100; required keys present; validation errors raise correctly
+- `conftest.py` — empty; puts this directory on `sys.path` for pytest
 
 ## Scope & guardrails
 
