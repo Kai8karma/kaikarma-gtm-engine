@@ -28,6 +28,12 @@ run "rsa-builder demo"            03-abm-paid-engine/rsa_builder.py
 run "rsa-builder tests"           03-abm-paid-engine/test_rsa.py
 run "executor demo (dry-run)"     03-abm-paid-engine/executor.py
 run "executor tests"              03-abm-paid-engine/test_executor.py
+run "google-ads executor demo"    03-abm-paid-engine/google_ads_executor.py
+run "google-ads executor tests"   03-abm-paid-engine/test_google_ads_executor.py
+run "meta-ads executor demo"      03-abm-paid-engine/meta_ads_executor.py
+run "meta-ads executor tests"     03-abm-paid-engine/test_meta_ads_executor.py
+run "linkedin-ads executor demo"  03-abm-paid-engine/linkedin_ads_executor.py
+run "linkedin-ads executor tests" 03-abm-paid-engine/test_linkedin_ads_executor.py
 
 # 04 — revops engine
 run "revops-engine demo"          04-revops-engine/lead_router.py

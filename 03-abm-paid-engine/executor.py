@@ -79,24 +79,22 @@ class DryRunExecutor(Executor):
         return ExecResult(op, ok=True, message=f"dry-run: {op.kind} {op.campaign}{tail}")
 
 
-class GoogleAdsExecutor(Executor):
-    """LIVE executor — NOT IMPLEMENTED, NOT VALIDATED, on purpose.
-
-    Implementing this sends real changes to Google Ads (egress + real spend
-    impact). It must be wired to real OAuth credentials and tested against a real
-    (ideally sandbox) account before any trust. A fake 'working' integration is
-    worse than an honest unimplemented one — so this stays an explicit stub.
-    """
-
-    def apply(self, op: PaidOp) -> ExecResult:
-        raise NotImplementedError(
-            "GoogleAdsExecutor is a stub. Wire real credentials and test against a "
-            "live account before use. Egress: this would send changes to Google Ads."
-        )
+# Live, platform-specific executors live in their own modules — each wraps an
+# injected official SDK client and only egresses at runtime, and all honour the
+# same contract (never raise; surface failures as ok=False):
+#   google_ads_executor.py · meta_ads_executor.py · linkedin_ads_executor.py
 
 
 def execute(ops: list[PaidOp], executor: Executor) -> list[ExecResult]:
-    return [executor.apply(op) for op in ops]
+    """Apply ops in order. A misbehaving executor (one that raises) is contained —
+    its op becomes ok=False rather than aborting the whole batch."""
+    results: list[ExecResult] = []
+    for op in ops:
+        try:
+            results.append(executor.apply(op))
+        except Exception as exc:  # executors should return ok=False; never abort the batch
+            results.append(ExecResult(op, ok=False, message=f"executor raised on {op.campaign}: {exc}"))
+    return results
 
 
 if __name__ == "__main__":

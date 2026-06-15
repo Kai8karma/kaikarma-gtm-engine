@@ -10,7 +10,6 @@ from executor import (
     PAUSE,
     SET_BUDGET,
     DryRunExecutor,
-    GoogleAdsExecutor,
     PaidOp,
     execute,
     plan_to_ops,
@@ -56,14 +55,6 @@ class TestDryRun(unittest.TestCase):
         ex = DryRunExecutor()
         r = ex.apply(PaidOp(SET_BUDGET, "a", 120.0, "r"))
         self.assertIn("120", r.message)
-
-
-class TestLiveStub(unittest.TestCase):
-
-    def test_live_executor_refuses_until_implemented(self):
-        # An honest stub must NOT silently pretend to work.
-        with self.assertRaises(NotImplementedError):
-            GoogleAdsExecutor().apply(PaidOp(PAUSE, "a", None, "r"))
 
 
 class TestEndToEnd(unittest.TestCase):

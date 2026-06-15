@@ -6,6 +6,14 @@ authors = [{ name = "Kai", email = "kai8karma@gmail.com" }]
 license = { text = "MIT" }
 requires-python = ">=3.11"
 
+# Core has ZERO runtime dependencies (stdlib-only, air-gapped). These extras are
+# needed ONLY to run a LIVE executor against a real account — the brain stays
+# offline; only an Executor egresses. See docs/egress-policy.md.
+[project.optional-dependencies]
+google = ["google-ads"]        # GoogleAdsExecutor backend (Apache-2.0)
+meta = ["facebook-business"]   # MetaAdsExecutor backend
+linkedin = ["requests"]        # LinkedInAdsExecutor HTTP client
+
 [tool.pytest.ini_options]
 pythonpath = [
     "01-list-engine",
@@ -15,6 +23,7 @@ pythonpath = [
     "05-brain-integration",
     "examples",
     "engagements/_TEMPLATE",
+    "evals",
 ]
 testpaths = [
     "01-list-engine",
@@ -24,6 +33,7 @@ testpaths = [
     "05-brain-integration",
     "examples",
     "engagements/_TEMPLATE",
+    "evals",
 ]
 python_files = ["test_*.py"]
 
