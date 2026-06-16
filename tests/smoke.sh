@@ -34,6 +34,12 @@ run "meta-ads executor demo"      03-abm-paid-engine/meta_ads_executor.py
 run "meta-ads executor tests"     03-abm-paid-engine/test_meta_ads_executor.py
 run "linkedin-ads executor demo"  03-abm-paid-engine/linkedin_ads_executor.py
 run "linkedin-ads executor tests" 03-abm-paid-engine/test_linkedin_ads_executor.py
+run "google reporting demo"       03-abm-paid-engine/google_ads_reporting.py
+run "google reporting tests"      03-abm-paid-engine/test_google_ads_reporting.py
+run "meta reporting demo"         03-abm-paid-engine/meta_ads_reporting.py
+run "meta reporting tests"        03-abm-paid-engine/test_meta_ads_reporting.py
+run "linkedin reporting demo"     03-abm-paid-engine/linkedin_ads_reporting.py
+run "linkedin reporting tests"    03-abm-paid-engine/test_linkedin_ads_reporting.py
 
 # 04 — revops engine
 run "revops-engine demo"          04-revops-engine/lead_router.py
