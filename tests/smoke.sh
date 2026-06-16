@@ -86,5 +86,15 @@ run "list-to-sequences tests"     examples/test_list_to_sequences.py
 run "learning-loop backtest"      evals/learning_loop_eval.py
 run "learning-loop guard tests"   evals/test_learning_loop.py
 
+# API integrations — original, injected-client channel adapters (zero egress in tests)
+run "apollo enrichment demo"      01-list-engine/apollo_enrichment.py
+run "apollo enrichment tests"     01-list-engine/test_apollo_enrichment.py
+run "email sequencer demo"        02-send-engine/sequencer.py
+run "email sequencer tests"       02-send-engine/test_sequencer.py
+run "ads campaign builder demo"   03-abm-paid-engine/ads_campaigns.py
+run "ads campaign builder tests"  03-abm-paid-engine/test_ads_campaigns.py
+run "hubspot crm demo"            04-revops-engine/hubspot_crm.py
+run "hubspot crm tests"           04-revops-engine/test_hubspot_crm.py
+
 echo
-echo "✅ smoke passed — 5 pillars + loops + 03/04 brain logging + backtested learning gated"
+echo "✅ smoke passed — 5 pillars + full read/write API layer (ads · CRM · enrichment · email) + loops + backtested learning gated"

@@ -13,6 +13,9 @@ requires-python = ">=3.11"
 google = ["google-ads"]        # GoogleAdsExecutor backend (Apache-2.0)
 meta = ["facebook-business"]   # MetaAdsExecutor backend
 linkedin = ["requests"]        # LinkedInAdsExecutor HTTP client
+hubspot = ["hubspot-api-client"]  # HubSpot CRM adapter backend
+apollo = ["requests"]          # Apollo enrichment (REST)
+instantly = ["requests"]       # email sequencer (REST)
 
 [tool.pytest.ini_options]
 pythonpath = [

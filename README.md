@@ -65,6 +65,7 @@ Pillars run in GTM execution order: build the list → send → run paid air-cov
 - ✅ `03-abm-paid-engine/executor.py` — **execution boundary**: controller verdicts → executable ops (`set_budget` / `pause`) applied through a swappable `Executor`. `DryRunExecutor` (default, tested, **zero egress**); `execute()` is batch-safe (a failing op → `ok=False`, never aborts the batch). The brain stays air-gapped; only this seam touches the network ([egress policy](docs/egress-policy.md))
 - ✅ **`{google,meta,linkedin}_ads_executor.py`** — **original** Google/Meta/LinkedIn executors (license-clean, written from public API docs — not copied): pure tested payload builders + an *injected* official-SDK client, so the core stays stdlib and every test is zero-egress (fake clients). Consistent `ok=False` error contract across all three. Live use needs your creds + a sandbox account (`pip install '.[google]'`); **not** validated against live APIs by design
 - ✅ **`{google,meta,linkedin}_ads_reporting.py`** — the **read side**: `parse_campaigns()` maps each platform's reporting rows → engine `Campaign` objects (pure, tested, with the unit conversions — micros/cents/local-currency); `fetch_campaigns()` wraps an injected client and **fails loud** on a bad pull. The loop now closes end-to-end: **pull metrics → `perf_controller` decides → executor acts** — license-clean, zero-egress in tests
+- ✅ **Full-stack API layer** — original injected-client adapters across the whole motion: `01/apollo_enrichment.py` (enrich → `Account`), `04/hubspot_crm.py` (companies → `Account`, `Route` → CRM update), `02/sequencer.py` (push to email sequences, partial-failure-safe), `03/ads_campaigns.py` (campaign-create + **SHA-256-hashed** customer-match audiences). Every channel has hands now — **list → enrich → score → send → route → ads → measure** — license-clean, zero-egress in tests
 - ✅ `04-revops-engine/` — `lead_router.py` + **`stage_machine.py`** (lifecycle FSM) + **`dqs_scorer.py`** (6-dim data quality) + **`sla_enforcer.py`** (breach/escalation)
 - ✅ `05-brain-integration/` — the **learning loop**: outcome store + `policy_tuner.tune()` (win↑/loss↓/renormalize)
 - ✅ **`examples/closed_loop.py`** — the learning loop, **wired end-to-end**: score → log outcomes → `tune()` → reload → re-score; signal-driven accounts rise, pure-firmographic fall (one drops a tier)
@@ -75,7 +76,7 @@ Pillars run in GTM execution order: build the list → send → run paid air-cov
 - ✅ **`evals/`** — pre-registered backtest of the learning loop, honestly logged (verdict: **PARK**). Proving it helps *before* claiming it does is the whole ethos.
 - 🚧 A magnitude-aware tuner to capture the remaining 22% headroom; wire loggers into the controllers as opt-in side-effects — next loop
 
-**543 tests, ruff-clean, `bash tests/smoke.sh` exits 0** — CI gates every pillar, the full cross-pillar loop, the learning-loop backtest, the execution boundary, and the Google/Meta/LinkedIn read+write API layer on Python 3.11/3.12/3.13. Grows by loops; nothing ships unless the gate is green.
+**774 tests, ruff-clean, `bash tests/smoke.sh` exits 0** — CI gates every pillar, the full cross-pillar loop, the learning-loop backtest, and the whole-stack API layer (ads read+write, CRM, enrichment, email) on Python 3.11/3.12/3.13. Grows by loops; nothing ships unless the gate is green.
 
 ---
 
