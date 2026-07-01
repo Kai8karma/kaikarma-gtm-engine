@@ -96,5 +96,22 @@ run "ads campaign builder tests"  03-abm-paid-engine/test_ads_campaigns.py
 run "hubspot crm demo"            04-revops-engine/hubspot_crm.py
 run "hubspot crm tests"           04-revops-engine/test_hubspot_crm.py
 
+# 06 — pre-call intelligence engine (Aerchain)
+run "precall schema tests"        06-precall-intelligence-engine/test_precall_schema.py
+run "precall trigger demo"        06-precall-intelligence-engine/trigger_scheduler.py
+run "precall trigger tests"       06-precall-intelligence-engine/test_trigger_scheduler.py
+run "precall calendar demo"       06-precall-intelligence-engine/calendar_parser.py
+run "precall calendar tests"      06-precall-intelligence-engine/test_calendar_parser.py
+run "precall hubspot demo"        06-precall-intelligence-engine/hubspot_precall.py
+run "precall hubspot tests"       06-precall-intelligence-engine/test_hubspot_precall.py
+run "precall briefing demo"       06-precall-intelligence-engine/briefing_builder.py
+run "precall briefing tests"      06-precall-intelligence-engine/test_briefing_builder.py
+run "precall pipeline demo"       06-precall-intelligence-engine/pipeline.py
+run "precall pipeline tests"      06-precall-intelligence-engine/test_pipeline.py
+
+# engagements — Aerchain precall config
+run "aerchain config demo"        engagements/aerchain/precall_config_loader.py
+run "aerchain config tests"       engagements/aerchain/test_precall_config_loader.py
+
 echo
-echo "✅ smoke passed — 5 pillars + full read/write API layer (ads · CRM · enrichment · email) + loops + backtested learning gated"
+echo "✅ smoke passed — 6 pillars + full read/write API layer (ads · CRM · enrichment · email · precall intel) + loops + backtested learning gated"

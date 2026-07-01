@@ -1,6 +1,6 @@
 # kaikarma-gtm-engine
 
-[![CI](https://github.com/Kai8karma/kaikarma-gtm-engine/actions/workflows/ci.yml/badge.svg)](https://github.com/Kai8karma/kaikarma-gtm-engine/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/) [![Tests](https://img.shields.io/badge/tests-774-brightgreen.svg)](#tested-or-it-doesnt-count)
+[![CI](https://github.com/Kai8karma/kaikarma-gtm-engine/actions/workflows/ci.yml/badge.svg)](https://github.com/Kai8karma/kaikarma-gtm-engine/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/) [![Tests](https://img.shields.io/badge/tests-865-brightgreen.svg)](#tested-or-it-doesnt-count)
 
 **A GTM engine that runs — not a folder of playbooks.** ICP scoring, paid-spend control under hard caps, lead routing, and a learning loop that tunes itself from real outcomes. All tested Python. All runnable in one command.
 
@@ -51,6 +51,7 @@ Pillars run in execution order: build the list → send → run paid air-cover a
 | `03 · paid` | Scale / hold / cut / kill each campaign vs target CPA — under hard caps | [`perf_controller.py`](03-abm-paid-engine/perf_controller.py) |
 | `04 · revops` | Route the lead, enforce SLA, decay stale data quality | [`lead_router.py`](04-revops-engine/lead_router.py) |
 | `05 · brain` | Tune ICP weights from won/lost outcomes; persist across sessions | [`policy_tuner.py`](05-brain-integration/policy_tuner.py) |
+| `06 · precall intel` | Which calls get briefed when — T-2 full briefing, T-1 recap, deduped | [`trigger_scheduler.py`](06-precall-intelligence-engine/trigger_scheduler.py) |
 
 ---
 
@@ -73,9 +74,9 @@ The loop tunes ICP weights from outcomes and, in a [pre-registered backtest](eva
 
 ## Tested, or it doesn't count
 
-**774 tests · ruff-clean · `bash tests/smoke.sh` exits 0** — CI gates every pillar, the full cross-pillar loop, the learning-loop backtest, and the whole-stack API layer on Python 3.11 / 3.12 / 3.13. Nothing ships unless the gate is green; the engine grows by verified loops.
+**865 tests · ruff-clean · `bash tests/smoke.sh` exits 0** — CI gates every pillar, the full cross-pillar loop, the learning-loop backtest, and the whole-stack API layer on Python 3.11 / 3.12 / 3.13. Nothing ships unless the gate is green; the engine grows by verified loops.
 
-**What's real:** all five engines run; the learning loop is wired end-to-end and persists across sessions ([`examples/persistent_loop.py`](examples/persistent_loop.py)); injected-client adapters exist for the whole motion — Apollo enrichment, HubSpot CRM, Google/Meta/LinkedIn ads (read + write) — pure, tested, zero-egress in tests.
+**What's real:** all six engines run; the learning loop is wired end-to-end and persists across sessions ([`examples/persistent_loop.py`](examples/persistent_loop.py)); injected-client adapters exist for the whole motion — Apollo enrichment, HubSpot CRM, Google/Meta/LinkedIn ads (read + write), Google Calendar + Gmail for pre-call intelligence — pure, tested, zero-egress in tests.
 
 **What's not (yet):** adapters are written from public API docs and are **not** validated against live accounts — live use needs your creds + a sandbox. The engine is *invoked*, not a always-on daemon. A magnitude-aware tuner to capture the remaining headroom is the next loop. (Stated plainly because the alternative is a demo that lies.)
 
@@ -91,6 +92,7 @@ kaikarma-gtm-engine/
 ├── 03-abm-paid-engine/    # account targeting + paid-ads controllers (classify → act → cap)
 ├── 04-revops-engine/      # routing, lifecycle FSM, data-quality decay, reporting
 ├── 05-brain-integration/  # the learning loop — outcomes → tuned weights
+├── 06-precall-intelligence-engine/  # demo-call briefing/recap — trigger logic + n8n workflow
 ├── examples/              # runnable end-to-end demos (start with closed_loop.py)
 ├── engagements/           # per-client isolation; _INDEX.md cites live state
 ├── evals/                 # pre-registered backtests — does the method actually work?

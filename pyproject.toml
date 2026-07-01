@@ -24,8 +24,10 @@ pythonpath = [
     "03-abm-paid-engine",
     "04-revops-engine",
     "05-brain-integration",
+    "06-precall-intelligence-engine",
     "examples",
     "engagements/_TEMPLATE",
+    "engagements/aerchain",
     "evals",
 ]
 testpaths = [
@@ -34,8 +36,10 @@ testpaths = [
     "03-abm-paid-engine",
     "04-revops-engine",
     "05-brain-integration",
+    "06-precall-intelligence-engine",
     "examples",
     "engagements/_TEMPLATE",
+    "engagements/aerchain",
     "evals",
 ]
 python_files = ["test_*.py"]
