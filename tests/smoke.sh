@@ -113,5 +113,20 @@ run "precall pipeline tests"      06-precall-intelligence-engine/test_pipeline.p
 run "aerchain config demo"        engagements/aerchain/precall_config_loader.py
 run "aerchain config tests"       engagements/aerchain/test_precall_config_loader.py
 
+# 07 — revenue engine (attribution, MRR bridge, pipeline velocity)
+run "revenue schema tests"        07-revenue-engine/test_revenue_schema.py
+run "revenue attribution demo"    07-revenue-engine/attribution.py
+run "revenue attribution tests"   07-revenue-engine/test_attribution.py
+run "revenue mrr demo"            07-revenue-engine/mrr_calculator.py
+run "revenue mrr tests"           07-revenue-engine/test_mrr_calculator.py
+run "revenue velocity demo"       07-revenue-engine/pipeline_velocity.py
+run "revenue velocity tests"      07-revenue-engine/test_pipeline_velocity.py
+run "revenue outcomes demo"       07-revenue-engine/revenue_outcomes.py
+run "revenue outcomes tests"      07-revenue-engine/test_revenue_outcomes.py
+run "hyperline billing demo"      07-revenue-engine/hyperline_billing.py
+run "hyperline billing tests"     07-revenue-engine/test_hyperline_billing.py
+run "dreamdata attribution demo"  07-revenue-engine/dreamdata_attribution.py
+run "dreamdata attribution tests" 07-revenue-engine/test_dreamdata_attribution.py
+
 echo
-echo "✅ smoke passed — 6 pillars + full read/write API layer (ads · CRM · enrichment · email · precall intel) + loops + backtested learning gated"
+echo "✅ smoke passed — 7 pillars + full read/write API layer (ads · CRM · enrichment · email · precall intel · revenue) + loops + backtested learning gated"
