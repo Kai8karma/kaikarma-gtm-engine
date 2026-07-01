@@ -1,6 +1,6 @@
 # kaikarma-gtm-engine
 
-[![CI](https://github.com/Kai8karma/kaikarma-gtm-engine/actions/workflows/ci.yml/badge.svg)](https://github.com/Kai8karma/kaikarma-gtm-engine/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/) [![Tests](https://img.shields.io/badge/tests-943-brightgreen.svg)](#tested-or-it-doesnt-count)
+[![CI](https://github.com/Kai8karma/kaikarma-gtm-engine/actions/workflows/ci.yml/badge.svg)](https://github.com/Kai8karma/kaikarma-gtm-engine/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/) [![Tests](https://img.shields.io/badge/tests-970-brightgreen.svg)](#tested-or-it-doesnt-count)
 
 **A GTM engine that runs — not a folder of playbooks.** ICP scoring, paid-spend control under hard caps, lead routing, and a learning loop that tunes itself from real outcomes. All tested Python. All runnable in one command.
 
@@ -75,7 +75,7 @@ The loop tunes ICP weights from outcomes and, in a [pre-registered backtest](eva
 
 ## Tested, or it doesn't count
 
-**943 tests · ruff-clean · `bash tests/smoke.sh` exits 0** — CI gates every pillar, the full cross-pillar loop, the learning-loop backtest, and the whole-stack API layer on Python 3.11 / 3.12 / 3.13. Nothing ships unless the gate is green; the engine grows by verified loops.
+**970 tests · ruff-clean · `bash tests/smoke.sh` exits 0** — CI gates every pillar, the full cross-pillar loop, the learning-loop backtest, and the whole-stack API layer on Python 3.11 / 3.12 / 3.13. Nothing ships unless the gate is green; the engine grows by verified loops.
 
 **What's real:** all seven engines run; the learning loop is wired end-to-end and persists across sessions ([`examples/persistent_loop.py`](examples/persistent_loop.py)); injected-client adapters exist for the whole motion — Apollo enrichment, HubSpot CRM, Google/Meta/LinkedIn ads (read + write), Google Calendar + Gmail for pre-call intelligence — pure, tested, zero-egress in tests.
 

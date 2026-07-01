@@ -40,6 +40,10 @@ run "meta reporting demo"         03-abm-paid-engine/meta_ads_reporting.py
 run "meta reporting tests"        03-abm-paid-engine/test_meta_ads_reporting.py
 run "linkedin reporting demo"     03-abm-paid-engine/linkedin_ads_reporting.py
 run "linkedin reporting tests"    03-abm-paid-engine/test_linkedin_ads_reporting.py
+run "channel allocator demo"      03-abm-paid-engine/channel_allocator.py
+run "channel allocator tests"     03-abm-paid-engine/test_channel_allocator.py
+run "ad creative demo"            03-abm-paid-engine/ad_creative.py
+run "ad creative tests"           03-abm-paid-engine/test_ad_creative.py
 
 # 04 — revops engine
 run "revops-engine demo"          04-revops-engine/lead_router.py
