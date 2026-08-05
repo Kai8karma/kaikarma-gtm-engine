@@ -19,7 +19,7 @@
 - `sla_enforcer.py` — a watchdog that queries the CRM and fires alerts on SLA breach (escalate at 2×).
 - `lifecycle/stage_machine.py` — lifecycle as an explicit state machine with entry/exit criteria, not a table. `health_scorer.py` — composable customer-health score with segment-specific weights.
 - `data-governance/dqs_scorer.py` — 6-dimension data-quality score per record. `decay_scheduler.py` — flag records due for re-enrichment by field half-life (job title decays faster than company name).
-- `reporting/pipeline_velocity.py` — velocity = (opps × win-rate × ACV) ÷ cycle-length, as a queryable function. `cohort_builder.py` — cohort tables from CRM deal data.
+- `reporting/pipeline_velocity.py` — **shipped as `07-revenue-engine/pipeline_velocity.py`** (velocity + cohort retention), not here — revenue-layer reporting belongs with attribution and MRR, not routing.
 
 ## Why code, not docs
 

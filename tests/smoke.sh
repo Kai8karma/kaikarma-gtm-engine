@@ -40,6 +40,10 @@ run "meta reporting demo"         03-abm-paid-engine/meta_ads_reporting.py
 run "meta reporting tests"        03-abm-paid-engine/test_meta_ads_reporting.py
 run "linkedin reporting demo"     03-abm-paid-engine/linkedin_ads_reporting.py
 run "linkedin reporting tests"    03-abm-paid-engine/test_linkedin_ads_reporting.py
+run "channel allocator demo"      03-abm-paid-engine/channel_allocator.py
+run "channel allocator tests"     03-abm-paid-engine/test_channel_allocator.py
+run "ad creative demo"            03-abm-paid-engine/ad_creative.py
+run "ad creative tests"           03-abm-paid-engine/test_ad_creative.py
 
 # 04 — revops engine
 run "revops-engine demo"          04-revops-engine/lead_router.py
@@ -96,5 +100,37 @@ run "ads campaign builder tests"  03-abm-paid-engine/test_ads_campaigns.py
 run "hubspot crm demo"            04-revops-engine/hubspot_crm.py
 run "hubspot crm tests"           04-revops-engine/test_hubspot_crm.py
 
+# 06 — pre-call intelligence engine (Aerchain)
+run "precall schema tests"        06-precall-intelligence-engine/test_precall_schema.py
+run "precall trigger demo"        06-precall-intelligence-engine/trigger_scheduler.py
+run "precall trigger tests"       06-precall-intelligence-engine/test_trigger_scheduler.py
+run "precall calendar demo"       06-precall-intelligence-engine/calendar_parser.py
+run "precall calendar tests"      06-precall-intelligence-engine/test_calendar_parser.py
+run "precall hubspot demo"        06-precall-intelligence-engine/hubspot_precall.py
+run "precall hubspot tests"       06-precall-intelligence-engine/test_hubspot_precall.py
+run "precall briefing demo"       06-precall-intelligence-engine/briefing_builder.py
+run "precall briefing tests"      06-precall-intelligence-engine/test_briefing_builder.py
+run "precall pipeline demo"       06-precall-intelligence-engine/pipeline.py
+run "precall pipeline tests"      06-precall-intelligence-engine/test_pipeline.py
+
+# engagements — Aerchain precall config
+run "aerchain config demo"        engagements/aerchain/precall_config_loader.py
+run "aerchain config tests"       engagements/aerchain/test_precall_config_loader.py
+
+# 07 — revenue engine (attribution, MRR bridge, pipeline velocity)
+run "revenue schema tests"        07-revenue-engine/test_revenue_schema.py
+run "revenue attribution demo"    07-revenue-engine/attribution.py
+run "revenue attribution tests"   07-revenue-engine/test_attribution.py
+run "revenue mrr demo"            07-revenue-engine/mrr_calculator.py
+run "revenue mrr tests"           07-revenue-engine/test_mrr_calculator.py
+run "revenue velocity demo"       07-revenue-engine/pipeline_velocity.py
+run "revenue velocity tests"      07-revenue-engine/test_pipeline_velocity.py
+run "revenue outcomes demo"       07-revenue-engine/revenue_outcomes.py
+run "revenue outcomes tests"      07-revenue-engine/test_revenue_outcomes.py
+run "hyperline billing demo"      07-revenue-engine/hyperline_billing.py
+run "hyperline billing tests"     07-revenue-engine/test_hyperline_billing.py
+run "dreamdata attribution demo"  07-revenue-engine/dreamdata_attribution.py
+run "dreamdata attribution tests" 07-revenue-engine/test_dreamdata_attribution.py
+
 echo
-echo "✅ smoke passed — 5 pillars + full read/write API layer (ads · CRM · enrichment · email) + loops + backtested learning gated"
+echo "✅ smoke passed — 7 pillars + full read/write API layer (ads · CRM · enrichment · email · precall intel · revenue) + loops + backtested learning gated"

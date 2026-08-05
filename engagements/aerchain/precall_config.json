@@ -1,0 +1,15 @@
+{
+  "engagement": "aerchain",
+  "hubspot_portal_id": "6416397",
+  "calendar_email": "marketing@aerchain.io",
+  "internal_domains": ["aerchain.io"],
+  "trigger_mode": "hybrid",
+  "catchup_threshold_hours": 48,
+  "claude_model_tier": "default",
+  "error_alert_email": "marketing@aerchain.io",
+  "hubspot_briefing_property": "precall_briefing",
+  "pending_decisions": [
+    "Decision 2 (SOW Sec. 8): confirm every confirmed demo invite actually lands on the marketing@aerchain.io calendar — calendar_email here is a placeholder pending that confirmation.",
+    "Decision 4 (SOW Sec. 8): confirm error_alert_email should be the shared marketing@aerchain.io alias vs. animesh.bajpai@aerchain.io directly — placeholder defaults to the shared alias."
+  ]
+}
