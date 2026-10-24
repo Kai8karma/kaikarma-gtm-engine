@@ -1,0 +1,384 @@
+{
+  "name": "Aerchain — Pre-Call Intelligence Automation",
+  "meta": {
+    "description": "T-2 full briefing + T-1 recap for confirmed Aerchain demo calls. Trigger logic (classify_window / needs_catchup / plan_action) mirrors the tested spec in 06-precall-intelligence-engine/trigger_scheduler.py — see that module's tests before changing the Code nodes below. Values in the 'Config' node mirror engagements/aerchain/precall_config.json; keep them in sync."
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "nodes": [
+    {
+      "id": "config",
+      "name": "Config (mirrors engagements/aerchain/precall_config.json)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [-1400, 300],
+      "notes": "Pending decisions from SOW Section 8: calendar_email (Decision 2) and error_alert_email (Decision 4) are placeholders — confirm with the client team before go-live.",
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ {\n  \"calendar_email\": \"marketing@aerchain.io\",\n  \"internal_domains\": [\"aerchain.io\"],\n  \"trigger_mode\": \"hybrid\",\n  \"catchup_threshold_hours\": 48,\n  \"claude_model_tier\": \"default\",\n  \"error_alert_email\": \"marketing@aerchain.io\",\n  \"hubspot_briefing_property\": \"precall_briefing\"\n} }}"
+      }
+    },
+    {
+      "id": "schedule_trigger",
+      "name": "Daily Sweep (08:00)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [-1400, 0],
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 8 * * *" }] }
+      }
+    },
+    {
+      "id": "get_events",
+      "name": "Google Calendar — Get Upcoming Events",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.2,
+      "position": [-1160, 0],
+      "notes": "Reads the shared calendar (Config.calendar_email). Window covers today through +3 days so both T-2 and T-1 classification have data.",
+      "parameters": {
+        "calendar": "={{ $('Config (mirrors engagements/aerchain/precall_config.json)').item.json.calendar_email }}",
+        "operation": "getAll",
+        "timeMin": "={{ $now.toISO() }}",
+        "timeMax": "={{ $now.plus({ days: 3 }).toISO() }}",
+        "options": { "singleEvents": true }
+      },
+      "credentials": { "googleCalendarOAuth2Api": { "id": "TBD", "name": "Aerchain Shared Mailbox — Calendar" } }
+    },
+    {
+      "id": "classify_plan",
+      "name": "Code — Classify & Plan (mirrors trigger_scheduler.py)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-920, 0],
+      "notes": "JS re-implementation of 06-precall-intelligence-engine/trigger_scheduler.py: classify_window, needs_catchup, plan_action. Any change here must also update the Python spec + its tests, or the two will silently drift.",
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const CATCHUP_LEAD_HOURS = $('Config (mirrors engagements/aerchain/precall_config.json)').item.json.catchup_threshold_hours;\nconst triggerMode = $('Config (mirrors engagements/aerchain/precall_config.json)').item.json.trigger_mode;\nconst internalDomains = new Set($('Config (mirrors engagements/aerchain/precall_config.json)').item.json.internal_domains);\nconst today = new Date(); today.setUTCHours(0, 0, 0, 0);\n\nfunction classifyWindow(callStart) {\n  const d = new Date(Date.UTC(callStart.getUTCFullYear(), callStart.getUTCMonth(), callStart.getUTCDate()));\n  const deltaDays = Math.round((d - today) / 86400000);\n  if (deltaDays === 2) return 't2';\n  if (deltaDays === 1) return 't1';\n  return 'none';\n}\n\nfunction leadTimeHours(bookedAt, callStart) {\n  return (callStart - bookedAt) / 3600000;\n}\n\nfunction needsCatchup(bookedAt, callStart) {\n  const h = leadTimeHours(bookedAt, callStart);\n  return h >= 0 && h < CATCHUP_LEAD_HOURS;\n}\n\nfunction planAction(event) {\n  const callStart = new Date(event.start.dateTime);\n  const bookedAt = new Date(event.created);\n  const flags = event.extendedProperties?.private || {};\n  const briefingSent = flags.briefingSent === 'true';\n  const summarySent = flags.summarySent === 'true';\n\n  if (summarySent) return 'skip';\n  if (triggerMode === 'hybrid' && !briefingSent && needsCatchup(bookedAt, callStart)) {\n    return 'send_catchup_briefing';\n  }\n  const window = classifyWindow(callStart);\n  if (window === 't2' && !briefingSent) return 'send_briefing';\n  if (window === 't1' && !summarySent) return 'send_recap';\n  return 'skip';\n}\n\nfunction prospectAttendee(event) {\n  for (const a of (event.attendees || [])) {\n    const domain = (a.email || '').split('@')[1] || '';\n    if (!internalDomains.has(domain.toLowerCase())) return a;\n  }\n  return null;\n}\n\nreturn items.map((item) => {\n  const event = item.json;\n  const prospect = prospectAttendee(event);\n  return {\n    json: {\n      event_id: event.id,\n      action: planAction(event),\n      prospect_email: prospect ? prospect.email : null,\n      event,\n    },\n  };\n});"
+      }
+    },
+    {
+      "id": "route_action",
+      "name": "Switch — Route by Action",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [-680, 0],
+      "parameters": {
+        "rules": {
+          "values": [
+            { "conditions": { "conditions": [{ "leftValue": "={{ $json.action }}", "rightValue": "send_briefing", "operator": { "type": "string", "operation": "equals" } }] }, "outputKey": "send_briefing" },
+            { "conditions": { "conditions": [{ "leftValue": "={{ $json.action }}", "rightValue": "send_catchup_briefing", "operator": { "type": "string", "operation": "equals" } }] }, "outputKey": "send_briefing" },
+            { "conditions": { "conditions": [{ "leftValue": "={{ $json.action }}", "rightValue": "send_recap", "operator": { "type": "string", "operation": "equals" } }] }, "outputKey": "send_recap" },
+            { "conditions": { "conditions": [{ "leftValue": "={{ $json.action }}", "rightValue": "skip", "operator": { "type": "string", "operation": "equals" } }] }, "outputKey": "skip" }
+          ]
+        },
+        "options": { "fallbackOutput": "skip" }
+      }
+    },
+    {
+      "id": "webhook_booking",
+      "name": "Webhook — Sub-48h Booking Created",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-1400, 400],
+      "notes": "HubSpot meeting-booked / Cal.com booking webhook, per SOW Section 6 hybrid trigger. Only fires the real-time path when Config.trigger_mode = 'hybrid'.",
+      "parameters": { "httpMethod": "POST", "path": "aerchain-precall-booking" }
+    },
+    {
+      "id": "check_catchup",
+      "name": "Code — Check Catch-Up Window",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-1160, 400],
+      "notes": "Same needs_catchup() rule as the sweep's Classify & Plan node — a booking outside the 48h window is left for the daily sweep, not briefed twice.",
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const triggerMode = $('Config (mirrors engagements/aerchain/precall_config.json)').item.json.trigger_mode;\nconst CATCHUP_LEAD_HOURS = $('Config (mirrors engagements/aerchain/precall_config.json)').item.json.catchup_threshold_hours;\nconst event = $json.body;\n\nconst callStart = new Date(event.start.dateTime);\nconst bookedAt = new Date(event.created);\nconst leadHours = (callStart - bookedAt) / 3600000;\nconst isCatchup = triggerMode === 'hybrid' && leadHours >= 0 && leadHours < CATCHUP_LEAD_HOURS;\n\nreturn [{ json: { event_id: event.id, action: isCatchup ? 'send_catchup_briefing' : 'skip', prospect_email: null, event } }];"
+      }
+    },
+    {
+      "id": "webhook_if_catchup",
+      "name": "If — Is Catch-Up",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [-920, 400],
+      "parameters": {
+        "conditions": { "conditions": [{ "leftValue": "={{ $json.action }}", "rightValue": "send_catchup_briefing", "operator": { "type": "string", "operation": "equals" } }] }
+      }
+    },
+    {
+      "id": "hubspot_get_contact",
+      "name": "HubSpot — Get Contact by Email",
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2,
+      "position": [-440, 100],
+      "notes": "SOW 5.2: if the prospect isn't a HubSpot contact, the briefing still sends (next node handles a not-found result) but the writeback to precall_briefing is skipped.",
+      "parameters": {
+        "resource": "contact",
+        "operation": "get",
+        "email": "={{ $json.prospect_email }}"
+      },
+      "credentials": { "hubspotAppToken": { "id": "TBD", "name": "Aerchain HubSpot (Hub 6416397)" } },
+      "continueOnFail": true
+    },
+    {
+      "id": "hubspot_get_company",
+      "name": "HubSpot — Get Company",
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2,
+      "position": [-200, 100],
+      "parameters": {
+        "resource": "company",
+        "operation": "get",
+        "companyId": "={{ $json.associatedcompanyid }}"
+      },
+      "credentials": { "hubspotAppToken": { "id": "TBD", "name": "Aerchain HubSpot (Hub 6416397)" } },
+      "continueOnFail": true
+    },
+    {
+      "id": "check_industry",
+      "name": "Code — Industry Fallback Check",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [40, 100],
+      "notes": "SOW Section 10: HubSpot's industry field is commonly blank (CRM audit finding). When blank, flag needs_web_classification so the Claude prompt asks the model to classify from live web search instead of guessing — see hubspot_precall.company_to_profile for the tested equivalent.",
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const company = $json.properties || {};\nconst needsWebClassification = !company.industry || company.industry.trim() === '';\nreturn [{ json: { ...$json, needs_web_classification: needsWebClassification } }];"
+      }
+    },
+    {
+      "id": "claude_briefing",
+      "name": "Claude — Generate T-2 Briefing (web search)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [280, 100],
+      "notes": "Model tier follows Config.claude_model_tier (SOW Decision 5: start on the default model, upgrade only if quality falls short). Prompt shape mirrors briefing_builder.build_t2_prompt — five required sections.",
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "x-api-key", "value": "={{ $credentials.anthropicApi.apiKey }}" },
+            { "name": "anthropic-version", "value": "2023-06-01" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ {\n  \"model\": \"claude-sonnet-5\",\n  \"max_tokens\": 4096,\n  \"tools\": [{ \"type\": \"web_search_20250305\", \"name\": \"web_search\" }],\n  \"messages\": [{ \"role\": \"user\", \"content\": \"Research and write a pre-call briefing for an Aerchain demo call. Contact: \" + $json.contact_email + \". Company: \" + ($json.properties?.name || 'unknown') + \". \" + ($json.needs_web_classification ? \"HubSpot's industry field is blank — classify the industry from live web search before selecting customer references.\" : \"CRM industry: \" + $json.properties.industry) + \" Write exactly five sections: 1) contact profile, 2) company deep-dive with an approximate product count, 3) Aerchain customers in the same industry as a table, 4) relevant Aerchain agents/use-cases mapped to likely pain points, 5) six to eight suggested discovery questions.\" }]\n} }}"
+      },
+      "credentials": { "anthropicApi": { "id": "TBD", "name": "Aerchain Anthropic API Key" } }
+    },
+    {
+      "id": "assemble_briefing",
+      "name": "Code — Assemble Briefing HTML",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [520, 100],
+      "notes": "Mirrors briefing_builder.assemble_briefing_html — fails loud (throws) if Claude's response is missing any of the five sections, rather than mailing a half-written briefing.",
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const text = $json.content?.[0]?.text || '';\nif (!text.trim()) {\n  throw new Error('Claude returned an empty briefing — refusing to send a blank email.');\n}\nreturn [{ json: { briefing_html: text, sent_at: $now.toISO() } }];"
+      }
+    },
+    {
+      "id": "gmail_send_briefing",
+      "name": "Gmail — Send T-2 Briefing",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [760, 100],
+      "parameters": {
+        "operation": "send",
+        "sendTo": "={{ $('Code — Classify & Plan (mirrors trigger_scheduler.py)').item.json.event.attendees.filter(a => $('Config (mirrors engagements/aerchain/precall_config.json)').item.json.internal_domains.some(d => a.email.endsWith('@' + d))).map(a => a.email).join(',') }}",
+        "subject": "={{ 'Pre-Call Briefing: ' + $('Code — Classify & Plan (mirrors trigger_scheduler.py)').item.json.event.summary }}",
+        "message": "={{ $json.briefing_html }}",
+        "options": { "appendAttribution": false }
+      },
+      "credentials": { "gmailOAuth2": { "id": "TBD", "name": "Aerchain Shared Mailbox — Gmail" } }
+    },
+    {
+      "id": "hubspot_writeback",
+      "name": "HubSpot — Store Briefing on Contact",
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2,
+      "position": [1000, 100],
+      "notes": "Writes precall_briefing (property name from Config.hubspot_briefing_property) so the T-1 recap can re-read it instead of re-researching.",
+      "parameters": {
+        "resource": "contact",
+        "operation": "update",
+        "contactId": "={{ $('HubSpot — Get Contact by Email').item.json.id }}",
+        "additionalFields": {
+          "customPropertiesUi": {
+            "customPropertiesValues": [
+              { "property": "precall_briefing", "value": "={{ $json.briefing_html }}" },
+              { "property": "precall_briefing_date", "value": "={{ $json.sent_at }}" }
+            ]
+          }
+        }
+      },
+      "credentials": { "hubspotAppToken": { "id": "TBD", "name": "Aerchain HubSpot (Hub 6416397)" } },
+      "continueOnFail": true
+    },
+    {
+      "id": "calendar_mark_briefed",
+      "name": "Google Calendar — Mark briefingSent",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.2,
+      "position": [1240, 100],
+      "parameters": {
+        "operation": "update",
+        "calendar": "={{ $('Config (mirrors engagements/aerchain/precall_config.json)').item.json.calendar_email }}",
+        "eventId": "={{ $('Code — Classify & Plan (mirrors trigger_scheduler.py)').item.json.event_id }}",
+        "updateFields": {
+          "extendedProperties": "={{ { private: { briefingSent: 'true', briefingSentAt: $json.sent_at } } }}"
+        }
+      },
+      "credentials": { "googleCalendarOAuth2Api": { "id": "TBD", "name": "Aerchain Shared Mailbox — Calendar" } }
+    },
+    {
+      "id": "hubspot_read_briefing",
+      "name": "HubSpot — Read Stored Briefing",
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2,
+      "position": [-440, 300],
+      "notes": "T-1 reads the T-2 briefing rather than re-researching (SOW 5.1). If blank — the prospect had no HubSpot record at T-2 time — the next Code node throws rather than mailing an empty recap.",
+      "parameters": {
+        "resource": "contact",
+        "operation": "get",
+        "email": "={{ $json.prospect_email }}"
+      },
+      "credentials": { "hubspotAppToken": { "id": "TBD", "name": "Aerchain HubSpot (Hub 6416397)" } },
+      "continueOnFail": true
+    },
+    {
+      "id": "check_stored_briefing",
+      "name": "Code — Require Stored Briefing",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-200, 300],
+      "notes": "Mirrors briefing_builder.build_t1_prompt's ValueError on blank input.",
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const stored = ($json.properties || {}).precall_briefing || '';\nif (!stored.trim()) {\n  throw new Error('No stored T-2 briefing for this contact — cannot build a T-1 recap with no source content.');\n}\nreturn [{ json: { ...$json, stored_briefing_html: stored } }];"
+      }
+    },
+    {
+      "id": "claude_recap",
+      "name": "Claude — Condense T-1 Recap",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [40, 300],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "x-api-key", "value": "={{ $credentials.anthropicApi.apiKey }}" },
+            { "name": "anthropic-version", "value": "2023-06-01" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ {\n  \"model\": \"claude-sonnet-5\",\n  \"max_tokens\": 1024,\n  \"messages\": [{ \"role\": \"user\", \"content\": \"Condense the following pre-call briefing into a one-screen recap: who/what/why the call matters, the single most important fact on the contact and on the company, the top three talking points, one to two strongest customer references, and three opening questions.\\n\\n--- BRIEFING ---\\n\" + $json.stored_briefing_html }]\n} }}"
+      },
+      "credentials": { "anthropicApi": { "id": "TBD", "name": "Aerchain Anthropic API Key" } }
+    },
+    {
+      "id": "assemble_recap",
+      "name": "Code — Assemble Recap HTML",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [280, 300],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const text = $json.content?.[0]?.text || '';\nif (!text.trim()) {\n  throw new Error('Claude returned an empty recap — refusing to send a blank email.');\n}\nreturn [{ json: { recap_html: text, sent_at: $now.toISO() } }];"
+      }
+    },
+    {
+      "id": "gmail_send_recap",
+      "name": "Gmail — Send T-1 Recap",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [520, 300],
+      "parameters": {
+        "operation": "send",
+        "sendTo": "={{ $('Code — Classify & Plan (mirrors trigger_scheduler.py)').item.json.event.attendees.filter(a => $('Config (mirrors engagements/aerchain/precall_config.json)').item.json.internal_domains.some(d => a.email.endsWith('@' + d))).map(a => a.email).join(',') }}",
+        "subject": "={{ 'Tomorrow\\'s Call Recap: ' + $('Code — Classify & Plan (mirrors trigger_scheduler.py)').item.json.event.summary }}",
+        "message": "={{ $json.recap_html }}",
+        "options": { "appendAttribution": false }
+      },
+      "credentials": { "gmailOAuth2": { "id": "TBD", "name": "Aerchain Shared Mailbox — Gmail" } }
+    },
+    {
+      "id": "calendar_mark_summarized",
+      "name": "Google Calendar — Mark summarySent",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.2,
+      "position": [760, 300],
+      "parameters": {
+        "operation": "update",
+        "calendar": "={{ $('Config (mirrors engagements/aerchain/precall_config.json)').item.json.calendar_email }}",
+        "eventId": "={{ $('Code — Classify & Plan (mirrors trigger_scheduler.py)').item.json.event_id }}",
+        "updateFields": {
+          "extendedProperties": "={{ { private: { summarySent: 'true', summarySentAt: $json.sent_at } } }}"
+        }
+      },
+      "credentials": { "googleCalendarOAuth2Api": { "id": "TBD", "name": "Aerchain Shared Mailbox — Calendar" } }
+    },
+    {
+      "id": "error_trigger",
+      "name": "Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [-1400, 700]
+    },
+    {
+      "id": "gmail_error_alert",
+      "name": "Gmail — Send Error Alert",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [-1160, 700],
+      "notes": "SOW Decision 4 (pending): recipient is Config.error_alert_email — currently defaulted to the shared marketing@aerchain.io alias.",
+      "parameters": {
+        "operation": "send",
+        "sendTo": "={{ $('Config (mirrors engagements/aerchain/precall_config.json)').item.json.error_alert_email }}",
+        "subject": "={{ 'Pre-Call Intelligence Automation failed: ' + $json.workflow.name }}",
+        "message": "={{ $json.execution.error.message }}"
+      },
+      "credentials": { "gmailOAuth2": { "id": "TBD", "name": "Aerchain Shared Mailbox — Gmail" } }
+    }
+  ],
+  "connections": {
+    "Daily Sweep (08:00)": { "main": [[{ "node": "Google Calendar — Get Upcoming Events", "type": "main", "index": 0 }]] },
+    "Google Calendar — Get Upcoming Events": { "main": [[{ "node": "Code — Classify & Plan (mirrors trigger_scheduler.py)", "type": "main", "index": 0 }]] },
+    "Code — Classify & Plan (mirrors trigger_scheduler.py)": { "main": [[{ "node": "Switch — Route by Action", "type": "main", "index": 0 }]] },
+    "Switch — Route by Action": {
+      "main": [
+        [{ "node": "HubSpot — Get Contact by Email", "type": "main", "index": 0 }],
+        [{ "node": "HubSpot — Read Stored Briefing", "type": "main", "index": 0 }],
+        []
+      ]
+    },
+    "Webhook — Sub-48h Booking Created": { "main": [[{ "node": "Code — Check Catch-Up Window", "type": "main", "index": 0 }]] },
+    "Code — Check Catch-Up Window": { "main": [[{ "node": "If — Is Catch-Up", "type": "main", "index": 0 }]] },
+    "If — Is Catch-Up": { "main": [[{ "node": "HubSpot — Get Contact by Email", "type": "main", "index": 0 }], []] },
+    "HubSpot — Get Contact by Email": { "main": [[{ "node": "HubSpot — Get Company", "type": "main", "index": 0 }]] },
+    "HubSpot — Get Company": { "main": [[{ "node": "Code — Industry Fallback Check", "type": "main", "index": 0 }]] },
+    "Code — Industry Fallback Check": { "main": [[{ "node": "Claude — Generate T-2 Briefing (web search)", "type": "main", "index": 0 }]] },
+    "Claude — Generate T-2 Briefing (web search)": { "main": [[{ "node": "Code — Assemble Briefing HTML", "type": "main", "index": 0 }]] },
+    "Code — Assemble Briefing HTML": { "main": [[{ "node": "Gmail — Send T-2 Briefing", "type": "main", "index": 0 }]] },
+    "Gmail — Send T-2 Briefing": { "main": [[{ "node": "HubSpot — Store Briefing on Contact", "type": "main", "index": 0 }]] },
+    "HubSpot — Store Briefing on Contact": { "main": [[{ "node": "Google Calendar — Mark briefingSent", "type": "main", "index": 0 }]] },
+    "HubSpot — Read Stored Briefing": { "main": [[{ "node": "Code — Require Stored Briefing", "type": "main", "index": 0 }]] },
+    "Code — Require Stored Briefing": { "main": [[{ "node": "Claude — Condense T-1 Recap", "type": "main", "index": 0 }]] },
+    "Claude — Condense T-1 Recap": { "main": [[{ "node": "Code — Assemble Recap HTML", "type": "main", "index": 0 }]] },
+    "Code — Assemble Recap HTML": { "main": [[{ "node": "Gmail — Send T-1 Recap", "type": "main", "index": 0 }]] },
+    "Gmail — Send T-1 Recap": { "main": [[{ "node": "Google Calendar — Mark summarySent", "type": "main", "index": 0 }]] },
+    "Error Trigger": { "main": [[{ "node": "Gmail — Send Error Alert", "type": "main", "index": 0 }]] }
+  }
+}
