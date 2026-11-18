@@ -42,3 +42,11 @@ python_files = ["test_*.py"]
 
 [tool.ruff]
 line-length = 100
+
+[tool.ruff.lint]
+# Stated explicitly instead of inherited. Ruff's default rule set grows
+# between releases, so "ruff check ." with no selection turned a clean tree
+# into 115 findings without a line of code changing. These four are the
+# rules the tree was clean against. Widen them on purpose, in a commit that
+# also fixes what they find.
+select = ["E4", "E7", "E9", "F"]

@@ -1,4 +1,4 @@
-.PHONY: test lint demo smoke all pitch
+.PHONY: test lint demo smoke all pitch pytest
 
 test:
 	bash tests/smoke.sh
@@ -7,9 +7,12 @@ smoke:
 	bash tests/smoke.sh
 
 lint:
-	uvx ruff check .
+	uvx ruff@0.17.5 check .
 
-all: lint test
+pytest:
+	python3 -m pytest -q
+
+all: lint test pytest
 
 pitch:
 	python3 examples/pitch.py

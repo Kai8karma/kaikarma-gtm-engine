@@ -9,8 +9,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      # Pinned, with the rule set fixed in pyproject.toml, so lint only goes
+      # red when the code changes.
       - name: Ruff lint
-        run: pipx run ruff check .
+        run: pipx run ruff==0.17.5 check .
 
   smoke:
     runs-on: ubuntu-latest
@@ -28,3 +30,11 @@ jobs:
 
       - name: Run smoke gate (all 5 pillars)
         run: bash tests/smoke.sh
+
+      # smoke.sh runs a hand-kept list of files. pytest collects every
+      # test_*.py on its own, so a new test file cannot be left out of CI by
+      # forgetting to add a line to the script.
+      - name: Run the full test suite
+        run: |
+          python -m pip install --quiet pytest
+          python -m pytest -q
