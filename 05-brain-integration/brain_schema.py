@@ -16,11 +16,14 @@ from dataclasses import dataclass, field
 from typing import Literal
 
 # Allowed entity types — expanding when new pillars are wired in.
-# 'icp_dimension' → a dimension weight in ICPProfile (firmographic, etc.)
-# 'perf_threshold' → a policy ratio in PerfPolicy (scale_when, cut_when, etc.)
-# 'routing_sla'   → an SLA contract for a routing destination (04-revops-engine)
-# 'routing_tier'  → a tier→destination mapping verdict (04-revops-engine)
-EntityType = Literal["icp_dimension", "perf_threshold", "routing_sla", "routing_tier"]
+# 'icp_dimension'    → a dimension weight in ICPProfile (firmographic, etc.)
+# 'perf_threshold'   → a policy ratio in PerfPolicy (scale_when, cut_when, etc.)
+# 'routing_sla'      → an SLA contract for a routing destination (04-revops-engine)
+# 'routing_tier'     → a tier→destination mapping verdict (04-revops-engine)
+# 'revenue_channel'  → an attribution channel credited on a closed deal (07-revenue-engine)
+EntityType = Literal[
+    "icp_dimension", "perf_threshold", "routing_sla", "routing_tier", "revenue_channel"
+]
 
 Verdict = Literal["win", "loss", "neutral"]
 
