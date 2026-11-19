@@ -1,0 +1,15 @@
+{
+  "engagement": "exampleco",
+  "hubspot_portal_id": "00000000",
+  "calendar_email": "marketing@exampleco.example",
+  "internal_domains": ["exampleco.example"],
+  "trigger_mode": "hybrid",
+  "catchup_threshold_hours": 48,
+  "claude_model_tier": "default",
+  "error_alert_email": "marketing@exampleco.example",
+  "hubspot_briefing_property": "precall_briefing",
+  "pending_decisions": [
+    "Decision 2 (spec Sec. 8): confirm every confirmed demo invite actually lands on the marketing@exampleco.example calendar — calendar_email here is a placeholder pending that confirmation.",
+    "Decision 4 (spec Sec. 8): confirm error_alert_email should be the shared marketing@exampleco.example alias vs. owner@exampleco.example directly — placeholder defaults to the shared alias."
+  ]
+}
